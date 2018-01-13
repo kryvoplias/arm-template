@@ -2,38 +2,131 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "existingVnetName": {
-        "type": "string",
-        "metadata": {
-          "description": "Name of the VNET to add a subnet to"
+        "existingVnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the VNET to add a subnet to"
+            }
+        },
+        "subnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the subnet to add"
+            }
+        },
+        "subnetAddressPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Address space of the subnet to add"
+            }
+        },
+        "administratorLogin": {
+            "type": "string"
+        },
+        "administratorLoginPassword": {
+            "type": "string"
+        },
+        "databaseName": {
+            "type": "string"
+        },
+        "collation": {
+            "type": "string",
+            "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
+        },
+        "edition": {
+            "type": "string",
+            "defaultValue": "Basic",
+            "allowedValues": [
+                "Basic",
+                "Standard",
+                "Premium"
+            ]
+        },
+        "maxSizeBytes": {
+            "type": "string",
+            "defaultValue": "1073741824"
+        },
+        "requestedServiceObjectiveName": {
+            "type": "string",
+            "defaultValue": "Basic",
+            "allowedValues": [
+                "Basic",
+                "S0",
+                "S1",
+                "S2",
+                "P1",
+                "P2",
+                "P3"
+            ],
+            "metadata": {
+                "description": "Describes the performance level for Edition"
+            }
         }
-      },
-      "subnetName": {
-        "type": "string",
-        "metadata": {
-          "description": "Name of the subnet to add"
-        }
-      },
-      "subnetAddressPrefix": {
-        "type": "string",
-        "metadata": {
-          "description": "Address space of the subnet to add"
-        }
-      }
     },
     "variables": {
-      "apiVersion": "2015-06-15"
+        "sqlApiVersion": "2014-04-01-preview",
+        "subnetName": "[concat(parameters('subnetPrefix'), '-subnet')]",
+        "subnetFullName": "[concat(parameters('existingVnetName'), '/', variables('subnetName'))]",
+        "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), variables('subnetName'))]",
+        "sqlServerName": "[concat(parameters('subnetPrefix'), '-sqlserver', uniqueString(resourceGroup().id))]",
+        "sqlServerDisplayName": "[concat(parameters('subnetPrefix'), '-sqlserver')]"
     },
     "resources": [
-      {
-        "apiVersion": "2015-06-15",
-        "type": "Microsoft.Network/virtualNetworks/subnets",
-        "name": "[concat(parameters('existingVnetName'), '/', parameters('subnetName'))]",
-        "location": "[resourceGroup().location]",
-        "properties": {
-          "addressPrefix": "[parameters('subnetAddressPrefix')]"
+        {
+            "apiVersion": "2016-08-01",
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "name": "[variables('subnetFullName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressPrefix": "[parameters('subnetAddressPrefix')]"
+            }
+        },
+        {
+            "name": "[variables('sqlServerName')]",
+            "type": "Microsoft.Sql/servers",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('sqlServerDisplayName')]"
+            },
+            "apiVersion": "[variables('sqlApiVersion')]",
+            "properties": {
+                "administratorLogin": "[parameters('administratorLogin')]",
+                "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
+            },
+            "resources": [
+                {
+                    "name": "[parameters('databaseName')]",
+                    "type": "databases",
+                    "location": "[resourceGroup().location]",
+                    "tags": {
+                        "displayName": "Database"
+                    },
+                    "apiVersion": "[variables('sqlApiVersion')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+                    ],
+                    "properties": {
+                        "edition": "[parameters('edition')]",
+                        "collation": "[parameters('collation')]",
+                        "maxSizeBytes": "[parameters('maxSizeBytes')]",
+                        "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]"
+                    }
+                },
+                {
+                    "type": "firewallrules",
+                    "apiVersion": "[variables('sqlApiVersion')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers/', variables('sqlServerName'))]"
+                    ],
+                    "location": "[resourceGroup().location]",
+                    "name": "AllowAllWindowsAzureIps",
+                    "properties": {
+                        "endIpAddress": "0.0.0.0",
+                        "startIpAddress": "0.0.0.0"
+                    }
+                }
+            ]
         }
-      }
     ],
     "outputs": {}
-  }
+}

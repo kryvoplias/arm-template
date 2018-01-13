@@ -46,7 +46,7 @@
         "publicIpAddressName": "[concat(parameters('appName'), '-web-ip')]",
         "vnetName": "[concat(parameters('appName'), '-vnet')]",
         "webSubnetName": "[concat(parameters('appName'), '-web-subnet')]",
-        "webSubnetAddressPrefix": "10.0.1.0/25",
+        "webSubnetAddressPrefix": "10.0.0.0/25",
         "webSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('webSubnetName'))]",
         "webLoadBalancerName": "[concat(parameters('appName'), '-web-lb')]",
         "natPoolName": "[concat(variables('namingInfix'), 'natpool')]",
@@ -222,11 +222,20 @@
                     "existingVnetName": {
                         "value": "[variables('vnetName')]"
                     },
-                    "subnetName":{
-                        "value": "api-1-subnet"
+                    "subnetPrefix":{
+                        "value": "[concat(parameters('appName'), 'api-1')]"
+                    },
+                    "databaseName":{
+                        "value": "[concat(parameters('appName'), 'api-1-db')]"
                     },
                     "subnetAddressPrefix":{
-                        "value": "10.0.2.0/25"
+                        "value": "10.0.1.0/25"
+                    },
+                    "administratorLogin": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "administratorLoginPassword": {
+                        "value": "[parameters('adminPassword')]"
                     }
                 }
             }
