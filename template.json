@@ -207,7 +207,7 @@
         },
         {
             "apiVersion": "2017-05-10",
-            "name": "linkedTemplate",
+            "name": "[concat('template-api-', copyindex(1))]",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
@@ -222,14 +222,14 @@
                     "existingVnetName": {
                         "value": "[variables('vnetName')]"
                     },
-                    "subnetPrefix":{
-                        "value": "[concat(parameters('appName'), 'api-1')]"
+                    "subnetPrefix": {
+                        "value": "[concat(parameters('appName'), '-api-', copyindex(1))]"
                     },
-                    "databaseName":{
-                        "value": "[concat(parameters('appName'), 'api-1-db')]"
+                    "databaseName": {
+                        "value": "[concat(parameters('appName'), '-api-', copyindex(1), '-db')]"
                     },
-                    "subnetAddressPrefix":{
-                        "value": "10.0.1.0/25"
+                    "subnetAddressPrefix": {
+                        "value": "[concat('10.0.', copyindex(1), '.0/25')]"
                     },
                     "administratorLogin": {
                         "value": "[parameters('adminUsername')]"
@@ -238,6 +238,10 @@
                         "value": "[parameters('adminPassword')]"
                     }
                 }
+            },
+            "copy": {
+                "name": "api-loop",
+                "count": "2"
             }
         }
     ]
