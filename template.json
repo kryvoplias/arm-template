@@ -209,6 +209,9 @@
             "apiVersion": "2017-05-10",
             "name": "[concat('linkedTemplate', copyIndex())]",
             "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+            ],
             "properties": {
                 "mode": "incremental",
                 "templateLink": {
