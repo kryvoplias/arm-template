@@ -1,0 +1,230 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "northeurope"
+        },
+        "appName": {
+            "type": "string",
+            "defaultValue": "mksm"
+        },
+        "vmSku": {
+            "type": "string",
+            "defaultValue": "Standard_A1",
+            "metadata": {
+                "description": "Size of VMs in the VM Scale Set."
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "defaultValue": "superuser"
+        },
+        "adminPassword": {
+            "type": "string",
+            "defaultValue": "$uperPassword"
+        },
+        "instanceCount": {
+            "type": "string",
+            "defaultValue": "1"
+        },
+        "ubuntuOSVersion": {
+            "type": "string",
+            "defaultValue": "16.04-LTS",
+            "allowedValues": [
+                "14.04.4-LTS",
+                "16.04-LTS"
+            ],
+            "metadata": {
+                "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version. Allowed values are: 15.10, 14.04.4-LTS."
+            }
+        }
+    },
+    "variables": {
+        "namingInfix": "[toLower(substring(concat(variables('webScaleSetName'), uniqueString(resourceGroup().id)), 0, 9))]",
+        "publicIpAddressName": "[concat(parameters('appName'), '-web-ip')]",
+        "vnetName": "[concat(parameters('appName'), '-vnet')]",
+        "rdpSubnetName": "[concat(parameters('appName'), '-rdp-subnet')]",
+        "rdpSubnetAddressPrefix": "10.0.0.0/25",
+        "rdpSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('rdpSubnetName'))]",
+        "webSubnetName": "[concat(parameters('appName'), '-web-subnet')]",
+        "webSubnetAddressPrefix": "10.0.1.0/25",
+        "webSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('webSubnetName'))]",
+        "api1SubnetName": "[concat(parameters('appName'), '-api1-subnet')]",
+        "api1SubnetAddressPrefix": "10.0.2.0/25",
+        "api1SubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('api1SubnetName'))]",
+        "api2SubnetName": "[concat(parameters('appName'), '-api2-subnet')]",
+        "api2SubnetAddressPrefix": "10.0.3.0/25",
+        "api2SubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('api2SubnetName'))]",
+        "webLoadBalancerName": "[concat(parameters('appName'), '-web-lb')]",
+        "natPoolName": "[concat(variables('namingInfix'), 'natpool')]",
+        "bePoolName": "[concat(variables('namingInfix'), 'bepool')]",
+        "webScaleSetName": "[concat(parameters('appName'), '-web-scale-set')]",
+        "api1loadBalancerName": "[concat(parameters('appName'), '-api1-lb')]",
+        "api1ScaleSetName": "[concat(parameters('appName'), '-api1-scale-set')]",
+        "api2loadBalancerName": "[concat(parameters('appName'), '-api2-lb')]",
+        "api2ScaleSetName": "[concat(parameters('appName'), '-api2-scale-set')]",
+        "networkApiVersion": "2017-06-01",
+        "computeApiVersion": "2017-03-30",
+        "osType": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "[parameters('ubuntuOSVersion')]",
+            "version": "latest"
+        },
+        "imageReference": "[variables('osType')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[variables('publicIpAddressName')]",
+            "location": "[parameters('location')]",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "[parameters('appName')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/loadBalancers",
+            "name": "[variables('webLoadBalancerName')]",
+            "location": "[parameters('location')]",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIpAddressName'))]"
+            ],
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "LoadBalancerFrontEnd",
+                        "properties": {
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
+                            }
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[variables('bePoolName')]"
+                    }
+                ],
+                "inboundNatPools": [
+                    {
+                        "name": "[variables('natPoolName')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('webLoadBalancerName')), '/frontendIPConfigurations/loadBalancerFrontEnd')]"
+                            },
+                            "protocol": "Tcp",
+                            "frontendPortRangeStart": "50000",
+                            "frontendPortRangeEnd": "50119",
+                            "backendPort": "3389"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[variables('vnetName')]",
+            "location": "[parameters('location')]",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('webSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('webSubnetAddressPrefix')]"
+                        }
+                    },
+                    {
+                        "name": "[variables('api1SubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('api1SubnetAddressPrefix')]"
+                        }
+                    },
+                    {
+                        "name": "[variables('api2SubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('api2SubnetAddressPrefix')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[variables('webScaleSetName')]",
+            "type": "Microsoft.Compute/virtualMachineScaleSets",
+            "apiVersion": "[variables('computeApiVersion')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'))]"
+            ],
+            "sku": {
+                "name": "[parameters('vmSku')]",
+                "tier": "Standard",
+                "capacity": "[int(parameters('instanceCount'))]"
+            },
+            "properties": {
+                "overprovision": "true",
+                "upgradePolicy": {
+                    "mode": "Manual"
+                },
+                "virtualMachineProfile": {
+                    "storageProfile": {
+                        "osDisk": {
+                            "createOption": "FromImage",
+                            "caching": "ReadWrite"
+                        },
+                        "imageReference": "[variables('imageReference')]"
+                    },
+                    "osProfile": {
+                        "computerNamePrefix": "[variables('namingInfix')]",
+                        "adminUsername": "[parameters('adminUsername')]",
+                        "adminPassword": "[parameters('adminPassword')]"
+                    },
+                    "networkProfile": {
+                        "networkInterfaceConfigurations": [
+                            {
+                                "name": "[concat(variables('webScaleSetName'), 'Nic')]",
+                                "properties": {
+                                    "primary": "true",
+                                    "ipConfigurations": [
+                                        {
+                                            "name": "[concat(variables('webScaleSetName'), 'IpConfig')]",
+                                            "properties": {
+                                                "subnet": {
+                                                    "id": "[variables('webSubnetResourceId')]"
+                                                },
+                                                "loadBalancerBackendAddressPools": [
+                                                    {
+                                                        "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'), '/backendAddressPools/', variables('bePoolName'))]"
+                                                    }
+                                                ],
+                                                "loadBalancerInboundNatPools": [
+                                                    {
+                                                        "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'), '/inboundNatPools/', variables('natPoolName'))]"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

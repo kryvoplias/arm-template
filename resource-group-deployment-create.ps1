@@ -1,0 +1,1 @@
+az group deployment create --resource-group mksm-resource-group --template-file template.json
