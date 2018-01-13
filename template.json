@@ -45,18 +45,9 @@
         "namingInfix": "[toLower(substring(concat(variables('webScaleSetName'), uniqueString(resourceGroup().id)), 0, 9))]",
         "publicIpAddressName": "[concat(parameters('appName'), '-web-ip')]",
         "vnetName": "[concat(parameters('appName'), '-vnet')]",
-        "rdpSubnetName": "[concat(parameters('appName'), '-rdp-subnet')]",
-        "rdpSubnetAddressPrefix": "10.0.0.0/25",
-        "rdpSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('rdpSubnetName'))]",
         "webSubnetName": "[concat(parameters('appName'), '-web-subnet')]",
         "webSubnetAddressPrefix": "10.0.1.0/25",
         "webSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('webSubnetName'))]",
-        "api1SubnetName": "[concat(parameters('appName'), '-api1-subnet')]",
-        "api1SubnetAddressPrefix": "10.0.2.0/25",
-        "api1SubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('api1SubnetName'))]",
-        "api2SubnetName": "[concat(parameters('appName'), '-api2-subnet')]",
-        "api2SubnetAddressPrefix": "10.0.3.0/25",
-        "api2SubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('api2SubnetName'))]",
         "webLoadBalancerName": "[concat(parameters('appName'), '-web-lb')]",
         "natPoolName": "[concat(variables('namingInfix'), 'natpool')]",
         "bePoolName": "[concat(variables('namingInfix'), 'bepool')]",
@@ -145,18 +136,6 @@
                         "properties": {
                             "addressPrefix": "[variables('webSubnetAddressPrefix')]"
                         }
-                    },
-                    {
-                        "name": "[variables('api1SubnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('api1SubnetAddressPrefix')]"
-                        }
-                    },
-                    {
-                        "name": "[variables('api2SubnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('api2SubnetAddressPrefix')]"
-                        }
                     }
                 ]
             }
@@ -224,6 +203,33 @@
                         ]
                     }
                 }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[concat('linkedTemplate', copyIndex())]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/kryvoplias/arm-template/master/template.api.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "existingVnetName": {
+                        "value": "[variables('vnetName')]"
+                    },
+                    "subnetName":{
+                        "value": "[concat('api-', copyIndex(), '-subnet')]"
+                    },
+                    "subnetAddressPrefix":{
+                        "value": "10.0.1.0/25"
+                    }
+                }
+            },
+            "copy": {
+                "count": 2,
+                "name": "api-loop"
             }
         }
     ]
