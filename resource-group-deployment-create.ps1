@@ -1,1 +1,1 @@
-az group deployment create --resource-group mksm-resource-group --template-uri "https://github.com/kryvoplias/arm-template/blob/master/template.json"
+az group deployment create --resource-group mksm-resource-group --template-uri "https://raw.githubusercontent.com/kryvoplias/arm-template/master/template.json"

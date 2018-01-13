@@ -207,7 +207,7 @@
         },
         {
             "apiVersion": "2017-05-10",
-            "name": "[concat('linkedTemplate', copyIndex())]",
+            "name": "linkedTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
@@ -223,16 +223,12 @@
                         "value": "[variables('vnetName')]"
                     },
                     "subnetName":{
-                        "value": "[concat('api-', copyIndex(), '-subnet')]"
+                        "value": "api-1-subnet"
                     },
                     "subnetAddressPrefix":{
                         "value": "10.0.1.0/25"
                     }
                 }
-            },
-            "copy": {
-                "count": 2,
-                "name": "api-loop"
             }
         }
     ]
