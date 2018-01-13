@@ -226,7 +226,7 @@
                         "value": "api-1-subnet"
                     },
                     "subnetAddressPrefix":{
-                        "value": "10.0.1.0/25"
+                        "value": "10.0.2.0/25"
                     }
                 }
             }
