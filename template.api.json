@@ -128,5 +128,34 @@
             ]
         }
     ],
-    "outputs": {}
+    "outputs": {
+      "ServerNameParam": {
+        "type": "string",
+        "value": "[variables('sqlServerName')]"
+      },
+      "ServerResourceID": {
+        "type": "string",
+        "value": "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+      },
+      "ServerObject": {
+        "type": "object",
+        "value": "[reference(variables('sqlServerName'))]"
+      },
+      "SqlServerURL": {
+        "type": "string",
+        "value": "[reference(variables('sqlServerName')).fullyQualifiedDomainName]"
+      },
+      "DbResourceID": {
+        "type": "string",
+        "value": "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServerName'), parameters('databaseName'))]"
+      },
+      "DbObject": {
+        "type": "object",
+        "value": "[reference(parameters('databaseName'))]"
+      },
+      "DbAdoConnString": {
+        "type": "string",
+        "value": "[concat('Server=tcp:',reference(variables('sqlServerName')).fullyQualifiedDomainName,',1433;Initial Catalog=',parameters('databaseName'),';Persist Security Info=False;User ID=',reference(variables('sqlServerName')).administratorLogin,';Password=',reference(variables('sqlServerName')).administratorLoginPassword,';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]"
+      }
+    }
 }
