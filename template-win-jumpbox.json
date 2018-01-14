@@ -99,7 +99,7 @@
       "apiVersion": "2017-10-01",
       "dependsOn": [
         "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'), '/subnets/', variables('subnetName'))]"
       ],
       "properties": {
         "ipConfigurations": [
