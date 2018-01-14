@@ -204,7 +204,7 @@
         },
         {
             "apiVersion": "2017-05-10",
-            "name": "[concat('template-api-', copyindex())]",
+            "name": "[concat('template-api-', copyindex(1))]",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
