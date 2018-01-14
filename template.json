@@ -258,7 +258,7 @@
                         "value": "[concat(parameters('appName'), '-rdp')]"
                     },
                     "subnetAddressPrefix": {
-                        "value": "[concat('10.0.10.0/30')]"
+                        "value": "[concat('10.0.5.0/25')]"
                     },
                     "adminUsername": {
                         "value": "[parameters('adminUsername')]"
