@@ -110,8 +110,7 @@
             "name": "[variables('subnetFullName')]",
             "location": "[resourceGroup().location]",
             "properties": {
-                "addressPrefix": "[parameters('subnetAddressPrefix')]",
-                "mode": "Incremental"
+                "addressPrefix": "[parameters('subnetAddressPrefix')]"
             }
         },
         {
