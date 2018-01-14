@@ -92,7 +92,6 @@
         "sqlServerDisplayName": "[concat(parameters('subnetPrefix'), '-sqlserver')]",
         "loadBalancerName": "[concat(parameters('subnetPrefix'), '-lb')]",
         "scaleSetName": "[concat(parameters('subnetPrefix'), '-scale-set')]",
-        "natPoolName": "[concat(variables('namingInfix'), 'natpool')]",
         "bePoolName": "[concat(variables('namingInfix'), 'bepool')]",
         "osType": {
             "publisher": "Canonical",
@@ -183,20 +182,6 @@
                     {
                         "name": "[variables('bePoolName')]"
                     }
-                ],
-                "inboundNatPools": [
-                    {
-                        "name": "[variables('natPoolName')]",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/frontendIPConfigurations/loadBalancerFrontEnd')]"
-                            },
-                            "protocol": "Tcp",
-                            "frontendPortRangeStart": "50000",
-                            "frontendPortRangeEnd": "50119",
-                            "backendPort": "3389"
-                        }
-                    }
                 ]
             }
         },
@@ -247,11 +232,6 @@
                                                 "loadBalancerBackendAddressPools": [
                                                     {
                                                         "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/backendAddressPools/', variables('bePoolName'))]"
-                                                    }
-                                                ],
-                                                "loadBalancerInboundNatPools": [
-                                                    {
-                                                        "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('loadBalancerName'), '/inboundNatPools/', variables('natPoolName'))]"
                                                     }
                                                 ]
                                             }
