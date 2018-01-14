@@ -236,6 +236,38 @@
                 "name": "api-loop",
                 "count": 2
             }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "template-win-jumpbox",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/kryvoplias/arm-template/master/template-win-jumpbox.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vnetName": {
+                        "value": "[variables('vnetName')]"
+                    },
+                    "subnetPrefix": {
+                        "value": "[concat(parameters('appName'), '-rdp')]"
+                    },
+                    "subnetAddressPrefix": {
+                        "value": "[concat('10.0.10.0/30')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    }
+                }
+            }
         }
     ]
 }
