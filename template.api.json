@@ -269,11 +269,11 @@
           "name": "autoscalewad",
           "location": "[resourceGroup().location]",
           "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]"
+            "[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]"
           ],
           "properties": {
             "name": "autoscalewad",
-            "targetResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]",
+            "targetResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]",
             "enabled": true,
             "mode": "Incremental",
             "profiles": [
@@ -289,7 +289,7 @@
                     "metricTrigger": {
                       "metricName": "Percentage CPU",
                       "metricNamespace": "",
-                      "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]",
+                      "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]",
                       "timeGrain": "PT1M",
                       "statistic": "Average",
                       "timeWindow": "PT5M",
@@ -308,7 +308,7 @@
                     "metricTrigger": {
                       "metricName": "Percentage CPU",
                       "metricNamespace": "",
-                      "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('namingInfix'))]",
+                      "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]",
                       "timeGrain": "PT1M",
                       "statistic": "Average",
                       "timeWindow": "PT5M",
