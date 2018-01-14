@@ -49,10 +49,6 @@
         "natPoolName": "[concat(variables('namingInfix'), 'natpool')]",
         "bePoolName": "[concat(variables('namingInfix'), 'bepool')]",
         "webScaleSetName": "[concat(parameters('appName'), '-web-scale-set')]",
-        "api1loadBalancerName": "[concat(parameters('appName'), '-api1-lb')]",
-        "api1ScaleSetName": "[concat(parameters('appName'), '-api1-scale-set')]",
-        "api2loadBalancerName": "[concat(parameters('appName'), '-api2-lb')]",
-        "api2ScaleSetName": "[concat(parameters('appName'), '-api2-scale-set')]",
         "networkApiVersion": "2017-06-01",
         "computeApiVersion": "2017-03-30",
         "osType": {
@@ -152,7 +148,7 @@
                 "capacity": "[parameters('instanceCount')]"
             },
             "properties": {
-                "overprovision": "true",
+                "overprovision": true,
                 "upgradePolicy": {
                     "mode": "Manual"
                 },
@@ -174,7 +170,7 @@
                             {
                                 "name": "[concat(variables('webScaleSetName'), 'Nic')]",
                                 "properties": {
-                                    "primary": "true",
+                                    "primary": true,
                                     "ipConfigurations": [
                                         {
                                             "name": "[concat(variables('webScaleSetName'), 'IpConfig')]",
@@ -210,7 +206,7 @@
                 "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
             ],
             "properties": {
-                "mode": "incremental",
+                "mode": "Incremental",
                 "templateLink": {
                     "uri": "https://raw.githubusercontent.com/kryvoplias/arm-template/master/template.api.json",
                     "contentVersion": "1.0.0.0"
