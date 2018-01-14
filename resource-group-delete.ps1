@@ -1,1 +1,1 @@
-az group delete --name mksm-resource-group
+az group delete --name mksm-resource-group --yes -y
