@@ -100,7 +100,8 @@
             "sku": "[parameters('ubuntuOSVersion')]",
             "version": "latest"
         },
-        "imageReference": "[variables('osType')]"
+        "imageReference": "[variables('osType')]",
+        "autoscaleSettingsName":  "[concat(variables('scaleSetName'), '-auto-scale-settings')]"
     },
     "resources": [
         {
@@ -267,13 +268,13 @@
         {
             "type": "Microsoft.Insights/autoscaleSettings",
             "apiVersion": "2015-04-01",
-            "name": "autoscalewad",
+            "name": "[variables('autoscaleSettingsName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]"
             ],
             "properties": {
-                "name": "autoscalewad",
+                "name": "[variables('autoscaleSettingsName')]",
                 "targetResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]",
                 "enabled": true,
                 "mode": "Incremental",
