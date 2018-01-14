@@ -164,7 +164,7 @@
             "type": "Microsoft.Network/loadBalancers",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/subnets', variables('subnetFullName'))]"
+                "[concat('Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), variables('subnetName'))]"
             ],
             "properties": {
                 "frontendIPConfigurations": [
