@@ -64,12 +64,12 @@
         }
     },
     "variables": {
-        "sqlApiVersion": "2014-04-01-preview",
         "subnetName": "[concat(parameters('subnetPrefix'), '-subnet')]",
         "subnetFullName": "[concat(parameters('existingVnetName'), '/', variables('subnetName'))]",
         "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), variables('subnetName'))]",
         "sqlServerName": "[concat(parameters('subnetPrefix'), '-sqlserver', uniqueString(resourceGroup().id))]",
-        "sqlServerDisplayName": "[concat(parameters('subnetPrefix'), '-sqlserver')]"
+        "sqlServerDisplayName": "[concat(parameters('subnetPrefix'), '-sqlserver')]",
+        "loadBalancerName": "[concat(parameters('subnetPrefix'), '-lb')]"
     },
     "resources": [
         {
@@ -88,7 +88,7 @@
             "tags": {
                 "displayName": "[variables('sqlServerDisplayName')]"
             },
-            "apiVersion": "[variables('sqlApiVersion')]",
+            "apiVersion": "2014-04-01",
             "properties": {
                 "administratorLogin": "[parameters('administratorLogin')]",
                 "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
@@ -101,7 +101,7 @@
                     "tags": {
                         "displayName": "Database"
                     },
-                    "apiVersion": "[variables('sqlApiVersion')]",
+                    "apiVersion": "2014-04-01",
                     "dependsOn": [
                         "[resourceId('Microsoft.Sql/servers/', variables('sqlServerName'))]"
                     ],
@@ -113,8 +113,8 @@
                     }
                 },
                 {
-                    "type": "firewallrules",
-                    "apiVersion": "[variables('sqlApiVersion')]",
+                    "type": "firewallRules",
+                    "apiVersion": "2014-04-01",
                     "dependsOn": [
                         "[resourceId('Microsoft.Sql/servers/', variables('sqlServerName'))]"
                     ],
@@ -126,36 +126,56 @@
                     }
                 }
             ]
+        },
+        {
+            "apiVersion": "2017-10-01",
+            "name": "[variables('loadBalancerName')]",
+            "type": "Microsoft.Network/loadBalancers",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [],
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "LoadBalancerFrontEnd",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('subnetResourceId')]"
+                            }
+                        }
+                    }
+                ]
+            }
         }
     ],
     "outputs": {
-      "ServerNameParam": {
-        "type": "string",
-        "value": "[variables('sqlServerName')]"
-      },
-      "ServerResourceID": {
-        "type": "string",
-        "value": "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
-      },
-      "ServerObject": {
-        "type": "object",
-        "value": "[reference(variables('sqlServerName'))]"
-      },
-      "SqlServerURL": {
-        "type": "string",
-        "value": "[reference(variables('sqlServerName')).fullyQualifiedDomainName]"
-      },
-      "DbResourceID": {
-        "type": "string",
-        "value": "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServerName'), parameters('databaseName'))]"
-      },
-      "DbObject": {
-        "type": "object",
-        "value": "[reference(parameters('databaseName'))]"
-      },
-      "DbAdoConnString": {
-        "type": "string",
-        "value": "[concat('Server=tcp:',reference(variables('sqlServerName')).fullyQualifiedDomainName,',1433;Initial Catalog=',parameters('databaseName'),';Persist Security Info=False;User ID=',reference(variables('sqlServerName')).administratorLogin,';Password=',reference(variables('sqlServerName')).administratorLoginPassword,';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]"
-      }
+        "ServerNameParam": {
+            "type": "string",
+            "value": "[variables('sqlServerName')]"
+        },
+        "ServerResourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+        },
+        "ServerObject": {
+            "type": "object",
+            "value": "[reference(variables('sqlServerName'))]"
+        },
+        "SqlServerURL": {
+            "type": "string",
+            "value": "[reference(variables('sqlServerName')).fullyQualifiedDomainName]"
+        },
+        "DbResourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServerName'), parameters('databaseName'))]"
+        },
+        "DbObject": {
+            "type": "object",
+            "value": "[reference(parameters('databaseName'))]"
+        },
+        "DbAdoConnString": {
+            "type": "string",
+            "value": "[concat('Server=tcp:',reference(variables('sqlServerName')).fullyQualifiedDomainName,',1433;Initial Catalog=',parameters('databaseName'),';Persist Security Info=False;User ID=',reference(variables('sqlServerName')).administratorLogin,';Password=',reference(variables('sqlServerName')).administratorLoginPassword,';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]"
+        }
     }
 }

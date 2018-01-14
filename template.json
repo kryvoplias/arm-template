@@ -2,10 +2,6 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "location": {
-            "type": "string",
-            "defaultValue": "northeurope"
-        },
         "appName": {
             "type": "string",
             "defaultValue": "mksm"
@@ -71,7 +67,7 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[variables('publicIpAddressName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "apiVersion": "[variables('networkApiVersion')]",
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
@@ -83,7 +79,7 @@
         {
             "type": "Microsoft.Network/loadBalancers",
             "name": "[variables('webLoadBalancerName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "apiVersion": "[variables('networkApiVersion')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIpAddressName'))]"
@@ -123,7 +119,7 @@
         {
             "type": "Microsoft.Network/virtualNetworks",
             "name": "[variables('vnetName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "apiVersion": "[variables('networkApiVersion')]",
             "properties": {
                 "addressSpace": {
@@ -145,7 +141,7 @@
             "name": "[variables('webScaleSetName')]",
             "type": "Microsoft.Compute/virtualMachineScaleSets",
             "apiVersion": "[variables('computeApiVersion')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
                 "[concat('Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'))]"
