@@ -100,7 +100,7 @@
             "version": "latest"
         },
         "imageReference": "[variables('osType')]",
-        "autoscaleSettingsName":  "[concat(variables('scaleSetName'), '-auto-scale-settings')]"
+        "autoscaleSettingsName": "[concat(variables('scaleSetName'), '-auto-scale-settings')]"
     },
     "resources": [
         {
@@ -242,7 +242,35 @@
                         ]
                     }
                 }
-            }
+            },
+            "resources": [
+                {
+                    "apiVersion": "2015-06-15",
+                    "type": "extensions",
+                    "name": "config-app",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]"
+                    ],
+                    "tags": {
+                        "displayName": "config-app"
+                    },
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Extensions",
+                        "type": "CustomScript",
+                        "typeHandlerVersion": "2.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "https://raw.githubusercontent.com/kryvoplias/arm-template/master/dotnet-linux-install.sh"
+                            ]
+                        },
+                        "protectedSettings": {
+                            "commandToExecute": "sh dotnet-linux-install.sh"
+                        }
+                    }
+                }
+            ]
         },
         {
             "type": "Microsoft.Insights/autoscaleSettings",
