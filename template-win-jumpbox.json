@@ -55,7 +55,9 @@
   "variables": {
     "publicIPAddressName": "[concat(parameters('subnetPrefix'), '-ip')]",
     "publicIPdomainNameLabel": "[parameters('subnetPrefix')]",
-    "jumpBoxVmName": "[concat(parameters('subnetPrefix'), '-vm')]",
+    "jumpBoxName": "[concat(parameters('subnetPrefix'), '-vm')]",
+    "jumpBoxNicName": "[concat(variables('jumpBoxName'), '-nic')]",
+    "jumpBoxIPConfigName": "[concat(variables('jumpBoxName'), '-ipconfig')]",
     "subnetName": "[concat(parameters('subnetPrefix'), '-subnet')]",
     "subnetFullName": "[concat(parameters('vnetName'), '/', variables('subnetName'))]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
@@ -91,20 +93,45 @@
       }
     },
     {
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('jumpBoxVmName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('jumpBoxNicName')]",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2017-03-30",
+      "apiVersion": "2017-10-01",
       "dependsOn": [
         "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
         "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'), '/subnets/', variables('subnetName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[variables('jumpBoxIPConfigName')]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('jumpBoxName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-03-30",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('jumpBoxNicName'))]"
       ],
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSku')]"
         },
         "osProfile": {
-          "computerName": "[variables('jumpBoxVmName')]",
+          "computerName": "[variables('jumpBoxName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
@@ -116,26 +143,9 @@
           }
         },
         "networkProfile": {
-          "networkInterfaceConfigurations": [
+          "networkInterfaces": [
             {
-              "name": "[concat(variables('jumpBoxVmName'), '-nic')]",
-              "properties": {
-                "primary": true,
-                "ipConfigurations": [
-                  {
-                    "name": "[concat(variables('jumpBoxVmName'), '-IpConfig')]",
-                    "properties": {
-                      "privateIPAllocationMethod": "Dynamic",
-                      "publicIPAddress": {
-                        "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
-                      },
-                      "subnet": {
-                        "id": "[variables('subnetRef')]"
-                      }
-                    }
-                  }
-                ]
-              }
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('jumpBoxNicName'))]"
             }
           ]
         }
