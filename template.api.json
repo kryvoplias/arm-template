@@ -240,34 +240,28 @@
                                 }
                             }
                         ]
+                    },
+                    "extensionProfile": {
+                        "extensions": [
+                            {
+                                "name": "updatescriptextension",
+                                "properties": {
+                                    "publisher": "Microsoft.Azure.Extensions",
+                                    "type": "CustomScript",
+                                    "typeHandlerVersion": "2.0",
+                                    "autoUpgradeMinorVersion": true,
+                                    "settings": {
+                                        "fileUris": [
+                                            "https://raw.githubusercontent.com/kryvoplias/arm-template/master/dotnet-linux-install.sh"
+                                        ],
+                                        "commandToExecute": "sh dotnet-linux-install.sh"
+                                    }
+                                }
+                            }
+                        ]
                     }
                 }
-            },
-            "resources": [
-                {
-                    "apiVersion": "2015-06-15",
-                    "type": "extensions",
-                    "name": "[concat(variables('scaleSetName'), '-dotnet')]",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Azure.Extensions",
-                        "type": "CustomScript",
-                        "typeHandlerVersion": "2.0",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": [
-                                "https://raw.githubusercontent.com/kryvoplias/arm-template/master/dotnet-linux-install.sh"
-                            ]
-                        },
-                        "protectedSettings": {
-                            "commandToExecute": "sh dotnet-linux-install.sh"
-                        }
-                    }
-                }
-            ]
+            }
         },
         {
             "type": "Microsoft.Insights/autoscaleSettings",
