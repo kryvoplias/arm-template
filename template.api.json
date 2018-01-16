@@ -252,9 +252,9 @@
                                     "autoUpgradeMinorVersion": true,
                                     "settings": {
                                         "fileUris": [
-                                            "https://raw.githubusercontent.com/kryvoplias/arm-template/master/dotnet-linux-install.sh"
+                                            "https://dot.net/v1/dotnet-install.sh"
                                         ],
-                                        "commandToExecute": "sh dotnet-linux-install.sh"
+                                        "commandToExecute": "sh dotnet-install.sh"
                                     }
                                 }
                             }
