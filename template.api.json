@@ -247,7 +247,7 @@
                 {
                     "apiVersion": "2015-06-15",
                     "type": "extensions",
-                    "name": "[concat(variables('scaleSetName'), 'install-dotnet')]",
+                    "name": "[concat(variables('scaleSetName'), '-dotnet')]",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]"
