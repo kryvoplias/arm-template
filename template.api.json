@@ -247,14 +247,11 @@
                 {
                     "apiVersion": "2015-06-15",
                     "type": "extensions",
-                    "name": "config-app",
+                    "name": "[concat(variables('scaleSetName'), 'install-dotnet')]",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('scaleSetName'))]"
                     ],
-                    "tags": {
-                        "displayName": "config-app"
-                    },
                     "properties": {
                         "publisher": "Microsoft.Azure.Extensions",
                         "type": "CustomScript",
