@@ -252,9 +252,9 @@
                                     "autoUpgradeMinorVersion": true,
                                     "settings": {
                                         "fileUris": [
-                                            "https://dot.net/v1/dotnet-install.sh"
+                                            "https://raw.githubusercontent.com/dotnet/cli/master/scripts/obtain/dotnet-install.sh"
                                         ],
-                                        "commandToExecute": "sh dotnet-install.sh"
+                                        "commandToExecute": "sh dotnet-linux-install.sh"
                                     }
                                 }
                             }
