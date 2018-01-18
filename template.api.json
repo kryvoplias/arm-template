@@ -254,7 +254,7 @@
                                         "fileUris": [
                                             "https://raw.githubusercontent.com/dotnet/cli/master/scripts/obtain/dotnet-install.sh"
                                         ],
-                                        "commandToExecute": "sh dotnet-linux-install.sh"
+                                        "commandToExecute": "sh dotnet-install.sh"
                                     }
                                 }
                             }
