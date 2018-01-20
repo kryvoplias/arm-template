@@ -99,7 +99,7 @@
     },
     {
       "apiVersion": "2017-05-10",
-      "name": "[concat('template', parameters('prefix'), '-vmss')]",
+      "name": "[concat('template-', parameters('prefix'), '-vmss')]",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
         "[concat('Microsoft.Resources/deployments/', variables('sqlServerDeploymentName'))]",
