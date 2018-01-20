@@ -220,6 +220,45 @@
           }
         }
       }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "name": "template-vmss",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+        "[concat('Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/kryvoplias/arm-template/master/template-vmss.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "existingVnetName": {
+            "value": "[variables('vnetName')]"
+          },
+          "existingSubnetName": {
+            "value": "[variables('webSubnetName')]"
+          },
+          "existingLoadBalancerName": {
+            "value": "[variables('webLoadBalancerName')]"
+          },
+          "existingLoadBalancerBackendPoolName": {
+            "value": "[variables('commonLoadBalancerBackendAddressPoolsName')]"
+          },
+          "vmssName": {
+            "value": "web-vmss"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          }
+        }
+      }
     }
   ]
 }
