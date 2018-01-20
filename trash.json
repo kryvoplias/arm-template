@@ -1,0 +1,132 @@
+,
+{
+  "name": "[variables('webScaleSetName')]",
+  "type": "Microsoft.Compute/virtualMachineScaleSets",
+  "apiVersion": "[variables('computeApiVersion')]",
+  "location": "[resourceGroup().location]",
+  "dependsOn": [
+    "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+    "[concat('Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'))]"
+  ],
+  "sku": {
+    "name": "[parameters('vmSku')]",
+    "tier": "Standard",
+    "capacity": "[parameters('instanceCount')]"
+  },
+  "properties": {
+    "overprovision": true,
+    "upgradePolicy": {
+      "mode": "Manual"
+    },
+    "virtualMachineProfile": {
+      "storageProfile": {
+        "osDisk": {
+          "createOption": "FromImage",
+          "caching": "ReadWrite"
+        },
+        "imageReference": "[variables('imageReference')]"
+      },
+      "osProfile": {
+        "computerNamePrefix": "[variables('namingInfix')]",
+        "adminUsername": "[parameters('adminUsername')]",
+        "adminPassword": "[parameters('adminPassword')]"
+      },
+      "networkProfile": {
+        "networkInterfaceConfigurations": [
+          {
+            "name": "[concat(variables('webScaleSetName'), 'Nic')]",
+            "properties": {
+              "primary": true,
+              "ipConfigurations": [
+                {
+                  "name": "[concat(variables('webScaleSetName'), 'IpConfig')]",
+                  "properties": {
+                    "subnet": {
+                      "id": "[variables('webSubnetResourceId')]"
+                    },
+                    "loadBalancerBackendAddressPools": [
+                      {
+                        "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'), '/backendAddressPools/', variables('bePoolName'))]"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+},
+{
+  "apiVersion": "2017-05-10",
+  "name": "[concat('template-api-', copyindex(1))]",
+  "type": "Microsoft.Resources/deployments",
+  "dependsOn": [
+    "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+  ],
+  "properties": {
+    "mode": "Incremental",
+    "templateLink": {
+      "uri": "https://raw.githubusercontent.com/kryvoplias/arm-template/master/template.api.json",
+      "contentVersion": "1.0.0.0"
+    },
+    "parameters": {
+      "existingVnetName": {
+        "value": "[variables('vnetName')]"
+      },
+      "subnetPrefix": {
+        "value": "[concat(parameters('appName'), '-api-', copyindex(1))]"
+      },
+      "databaseName": {
+        "value": "[concat(parameters('appName'), '-api-', copyindex(1), '-db')]"
+      },
+      "subnetAddressPrefix": {
+        "value": "[concat('10.0.', copyindex(1), '.0/25')]"
+      },
+      "administratorLogin": {
+        "value": "[parameters('adminUsername')]"
+      },
+      "administratorLoginPassword": {
+        "value": "[parameters('adminPassword')]"
+      }
+    }
+  },
+  "copy": {
+    "name": "api-loop",
+    "count": 2
+  }
+},
+{
+  "apiVersion": "2017-05-10",
+  "name": "template-win-jumpbox",
+  "type": "Microsoft.Resources/deployments",
+  "dependsOn": [
+    "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+  ],
+  "properties": {
+    "mode": "Incremental",
+    "templateLink": {
+      "uri": "https://raw.githubusercontent.com/kryvoplias/arm-template/master/template-win-jumpbox.json",
+      "contentVersion": "1.0.0.0"
+    },
+    "parameters": {
+      "vnetName": {
+        "value": "[variables('vnetName')]"
+      },
+      "subnetPrefix": {
+        "value": "[concat(parameters('appName'), '-rdp')]"
+      },
+      "subnetAddressPrefix": {
+        "value": "[concat('10.0.3.0/25')]"
+      },
+      "adminUsername": {
+        "value": "[parameters('adminUsername')]"
+      },
+      "adminPassword": {
+        "value": "[parameters('adminPassword')]"
+      }
+    }
+  }
+}

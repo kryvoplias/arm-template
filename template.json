@@ -1,253 +1,170 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "appName": {
-            "type": "string",
-            "defaultValue": "mksm"
-        },
-        "vmSku": {
-            "type": "string",
-            "defaultValue": "Standard_A1",
-            "metadata": {
-                "description": "Size of VMs in the VM Scale Set."
-            }
-        },
-        "adminUsername": {
-            "type": "string",
-            "defaultValue": "superuser"
-        },
-        "adminPassword": {
-            "type": "string",
-            "defaultValue": "$uperPassword"
-        },
-        "instanceCount": {
-            "type": "int",
-            "defaultValue": 1,
-            "maxValue": 100
-        },
-        "ubuntuOSVersion": {
-            "type": "string",
-            "defaultValue": "16.04-LTS",
-            "allowedValues": [
-                "14.04.4-LTS",
-                "16.04-LTS"
-            ],
-            "metadata": {
-                "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version. Allowed values are: 15.10, 14.04.4-LTS."
-            }
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {
+    "vnetName": "vnet",
+    "vnetAddressPrefixes": "10.0.0.0/16",
+    "webPublicIpAddressName": "web-ip",
+    "webPublicIpAddressDomainNameLabel": "mksm",
+    "rdpPublicIpAddressName": "rdp-ip",
+    "rdpPublicIpAddressDomainNameLabel": "mksm-rdp",
+    "webSubnetName": "web-subnet",
+    "webSubnetAddressPrefix": "10.0.1.0/25",
+    "api1SubnetName": "api1-subnet",
+    "api1SubnetAddressPrefix": "10.0.2.0/25",
+    "api2SubnetName": "api2-subnet",
+    "api2SubnetAddressPrefix": "10.0.3.0/25",
+    "rdpSubnetName": "rdp-subnet",
+    "rdpSubnetAddressPrefix": "10.0.0.0/25",
+    "webLoadBalancerName": "web-lb",
+    "api1LoadBalancerName": "api1-lb",
+    "api2LoadBalancerName": "api2-lb",
+    "commonLoadBalancerBackendAddressPoolsName": "bepool"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('webPublicIpAddressName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-10-01",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('webPublicIpAddressDomainNameLabel')]"
         }
+      }
     },
-    "variables": {
-        "namingInfix": "[toLower(substring(concat(variables('webScaleSetName'), uniqueString(resourceGroup().id)), 0, 9))]",
-        "publicIpAddressName": "[concat(parameters('appName'), '-web-ip')]",
-        "vnetName": "[concat(parameters('appName'), '-vnet')]",
-        "webSubnetName": "[concat(parameters('appName'), '-web-subnet')]",
-        "webSubnetAddressPrefix": "10.0.0.0/25",
-        "webSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('webSubnetName'))]",
-        "webLoadBalancerName": "[concat(parameters('appName'), '-web-lb')]",
-        "bePoolName": "[concat(variables('namingInfix'), 'bepool')]",
-        "webScaleSetName": "[concat(parameters('appName'), '-web-scale-set')]",
-        "networkApiVersion": "2017-06-01",
-        "computeApiVersion": "2017-03-30",
-        "osType": {
-            "publisher": "Canonical",
-            "offer": "UbuntuServer",
-            "sku": "[parameters('ubuntuOSVersion')]",
-            "version": "latest"
-        },
-        "imageReference": "[variables('osType')]"
-    },
-    "resources": [
-        {
-            "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[variables('publicIpAddressName')]",
-            "location": "[resourceGroup().location]",
-            "apiVersion": "[variables('networkApiVersion')]",
-            "properties": {
-                "publicIPAllocationMethod": "Dynamic",
-                "dnsSettings": {
-                    "domainNameLabel": "[parameters('appName')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Network/loadBalancers",
-            "name": "[variables('webLoadBalancerName')]",
-            "location": "[resourceGroup().location]",
-            "apiVersion": "[variables('networkApiVersion')]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIpAddressName'))]"
-            ],
-            "properties": {
-                "frontendIPConfigurations": [
-                    {
-                        "name": "LoadBalancerFrontEnd",
-                        "properties": {
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
-                            }
-                        }
-                    }
-                ],
-                "backendAddressPools": [
-                    {
-                        "name": "[variables('bePoolName')]"
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks",
-            "name": "[variables('vnetName')]",
-            "location": "[resourceGroup().location]",
-            "apiVersion": "[variables('networkApiVersion')]",
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "10.0.0.0/16"
-                    ]
-                },
-                "subnets": [
-                    {
-                        "name": "[variables('webSubnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('webSubnetAddressPrefix')]"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "[variables('webScaleSetName')]",
-            "type": "Microsoft.Compute/virtualMachineScaleSets",
-            "apiVersion": "[variables('computeApiVersion')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
-                "[concat('Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'))]"
-            ],
-            "sku": {
-                "name": "[parameters('vmSku')]",
-                "tier": "Standard",
-                "capacity": "[parameters('instanceCount')]"
-            },
-            "properties": {
-                "overprovision": true,
-                "upgradePolicy": {
-                    "mode": "Manual"
-                },
-                "virtualMachineProfile": {
-                    "storageProfile": {
-                        "osDisk": {
-                            "createOption": "FromImage",
-                            "caching": "ReadWrite"
-                        },
-                        "imageReference": "[variables('imageReference')]"
-                    },
-                    "osProfile": {
-                        "computerNamePrefix": "[variables('namingInfix')]",
-                        "adminUsername": "[parameters('adminUsername')]",
-                        "adminPassword": "[parameters('adminPassword')]"
-                    },
-                    "networkProfile": {
-                        "networkInterfaceConfigurations": [
-                            {
-                                "name": "[concat(variables('webScaleSetName'), 'Nic')]",
-                                "properties": {
-                                    "primary": true,
-                                    "ipConfigurations": [
-                                        {
-                                            "name": "[concat(variables('webScaleSetName'), 'IpConfig')]",
-                                            "properties": {
-                                                "subnet": {
-                                                    "id": "[variables('webSubnetResourceId')]"
-                                                },
-                                                "loadBalancerBackendAddressPools": [
-                                                    {
-                                                        "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'), '/backendAddressPools/', variables('bePoolName'))]"
-                                                    }
-                                                ]
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "[concat('template-api-', copyindex(1))]",
-            "type": "Microsoft.Resources/deployments",
-            "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/kryvoplias/arm-template/master/template.api.json",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "existingVnetName": {
-                        "value": "[variables('vnetName')]"
-                    },
-                    "subnetPrefix": {
-                        "value": "[concat(parameters('appName'), '-api-', copyindex(1))]"
-                    },
-                    "databaseName": {
-                        "value": "[concat(parameters('appName'), '-api-', copyindex(1), '-db')]"
-                    },
-                    "subnetAddressPrefix": {
-                        "value": "[concat('10.0.', copyindex(1), '.0/25')]"
-                    },
-                    "administratorLogin": {
-                        "value": "[parameters('adminUsername')]"
-                    },
-                    "administratorLoginPassword": {
-                        "value": "[parameters('adminPassword')]"
-                    }
-                }
-            },
-            "copy": {
-                "name": "api-loop",
-                "count": 2
-            }
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "template-win-jumpbox",
-            "type": "Microsoft.Resources/deployments",
-            "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/kryvoplias/arm-template/master/template-win-jumpbox.json",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "vnetName": {
-                        "value": "[variables('vnetName')]"
-                    },
-                    "subnetPrefix": {
-                        "value": "[concat(parameters('appName'), '-rdp')]"
-                    },
-                    "subnetAddressPrefix": {
-                        "value": "[concat('10.0.3.0/25')]"
-                    },
-                    "adminUsername": {
-                        "value": "[parameters('adminUsername')]"
-                    },
-                    "adminPassword": {
-                        "value": "[parameters('adminPassword')]"
-                    }
-                }
-            }
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('rdpPublicIpAddressName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-10-01",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('rdpPublicIpAddressDomainNameLabel')]"
         }
-    ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[variables('webLoadBalancerName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-10-01",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('webPublicIpAddressName'))]"
+      ],
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "LoadBalancerFrontEnd",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('webPublicIpAddressName'))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('commonLoadBalancerBackendAddressPoolsName')]"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "name": "[variables('api1LoadBalancerName')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+      ],
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "LoadBalancerFrontEnd",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/', variables('vnetName')), '/subnets/', variables('api1SubnetName'))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('commonLoadBalancerBackendAddressPoolsName')]"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "name": "[variables('api2LoadBalancerName')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+      ],
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "LoadBalancerFrontEnd",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/', variables('vnetName')), '/subnets/', variables('api2SubnetName'))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('commonLoadBalancerBackendAddressPoolsName')]"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('vnetName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-10-01",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetAddressPrefixes')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('webSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('webSubnetAddressPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('api1SubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('api1SubnetAddressPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('api2SubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('api2SubnetAddressPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('rdpSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('rdpSubnetAddressPrefix')]"
+            }
+          }
+        ]
+      }
+    }
+  ]
 }
