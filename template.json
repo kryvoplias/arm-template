@@ -259,6 +259,50 @@
           }
         }
       }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "name": "[concat('template-api', copyindex(1))]",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+        "[concat('Microsoft.Network/loadBalancers/', variables('api1LoadBalancerName'))]",
+        "[concat('Microsoft.Network/loadBalancers/', variables('api2LoadBalancerName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/kryvoplias/arm-template/master/template-api.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "prefix": {
+            "value": "[concat('api', copyindex(1))]"
+          },
+          "existingVnetName": {
+            "value": "[variables('vnetName')]"
+          },
+          "existingSubnetName": {
+            "value": "[concat('api', copyindex(1), '-subnet')]"
+          },
+          "existingLoadBalancerName": {
+            "value": "[concat('api', copyindex(1), '-lb')]"
+          },
+          "existingLoadBalancerBackendPoolName": {
+            "value": "[variables('commonLoadBalancerBackendAddressPoolsName')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          }
+        }
+      },
+      "copy": {
+        "name": "api-loop",
+        "count": 2
+      }
     }
   ]
 }
