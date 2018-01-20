@@ -171,7 +171,9 @@
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
-        "[concat('Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'))]"
+        "[concat('Microsoft.Network/loadBalancers/', variables('webLoadBalancerName'))]",
+        "[concat('Microsoft.Resources/deployments/', 'template-api1')]",
+        "[concat('Microsoft.Resources/deployments/', 'template-api2')]"
       ],
       "properties": {
         "mode": "Incremental",

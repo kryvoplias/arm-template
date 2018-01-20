@@ -74,7 +74,6 @@
       "apiVersion": "2017-05-10",
       "name": "[variables('sqlServerDeploymentName')]",
       "type": "Microsoft.Resources/deployments",
-      "dependsOn": [],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
