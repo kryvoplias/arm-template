@@ -1,4 +1,4 @@
-,
+
 {
   "name": "[variables('webScaleSetName')]",
   "type": "Microsoft.Compute/virtualMachineScaleSets",

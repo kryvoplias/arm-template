@@ -40,9 +40,7 @@
     "rdpSubnetName": "rdp-subnet",
     "rdpSubnetAddressPrefix": "10.0.0.0/25",
     "webLoadBalancerName": "web-lb",
-    "api1LoadBalancerName": "api1-lb",
-    "api2LoadBalancerName": "api2-lb",
-    "commonLoadBalancerBackendAddressPoolsName": "bepool"
+    "commonLoadBalancerBackendAddressPoolName": "bepool"
   },
   "resources": [
     {
@@ -90,61 +88,7 @@
         ],
         "backendAddressPools": [
           {
-            "name": "[variables('commonLoadBalancerBackendAddressPoolsName')]"
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "2017-10-01",
-      "name": "[variables('api1LoadBalancerName')]",
-      "type": "Microsoft.Network/loadBalancers",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
-      ],
-      "properties": {
-        "frontendIPConfigurations": [
-          {
-            "name": "LoadBalancerFrontEnd",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/', variables('vnetName')), '/subnets/', variables('api1SubnetName'))]"
-              }
-            }
-          }
-        ],
-        "backendAddressPools": [
-          {
-            "name": "[variables('commonLoadBalancerBackendAddressPoolsName')]"
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "2017-10-01",
-      "name": "[variables('api2LoadBalancerName')]",
-      "type": "Microsoft.Network/loadBalancers",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
-      ],
-      "properties": {
-        "frontendIPConfigurations": [
-          {
-            "name": "LoadBalancerFrontEnd",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/', variables('vnetName')), '/subnets/', variables('api2SubnetName'))]"
-              }
-            }
-          }
-        ],
-        "backendAddressPools": [
-          {
-            "name": "[variables('commonLoadBalancerBackendAddressPoolsName')]"
+            "name": "[variables('commonLoadBalancerBackendAddressPoolName')]"
           }
         ]
       }
@@ -246,7 +190,7 @@
             "value": "[variables('webLoadBalancerName')]"
           },
           "existingLoadBalancerBackendPoolName": {
-            "value": "[variables('commonLoadBalancerBackendAddressPoolsName')]"
+            "value": "[variables('commonLoadBalancerBackendAddressPoolName')]"
           },
           "vmssName": {
             "value": "web-vmss"
@@ -265,9 +209,7 @@
       "name": "[concat('template-api', copyindex(1))]",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
-        "[concat('Microsoft.Network/loadBalancers/', variables('api1LoadBalancerName'))]",
-        "[concat('Microsoft.Network/loadBalancers/', variables('api2LoadBalancerName'))]"
+        "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -284,12 +226,6 @@
           },
           "existingSubnetName": {
             "value": "[concat('api', copyindex(1), '-subnet')]"
-          },
-          "existingLoadBalancerName": {
-            "value": "[concat('api', copyindex(1), '-lb')]"
-          },
-          "existingLoadBalancerBackendPoolName": {
-            "value": "[variables('commonLoadBalancerBackendAddressPoolsName')]"
           },
           "adminUsername": {
             "value": "[parameters('adminUsername')]"

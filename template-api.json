@@ -2,6 +2,13 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "The Location For the resources"
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
     "prefix": {
       "type": "string",
       "metadata": {
@@ -20,18 +27,6 @@
         "description": "Name of the existing subnet."
       }
     },
-    "existingLoadBalancerName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the existing load balancer to connect the scale set to."
-      }
-    },
-    "existingLoadBalancerBackendPoolName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the existing backend pool in load balancer."
-      }
-    },
     "adminUsername": {
       "type": "string",
       "metadata": {
@@ -46,9 +41,35 @@
     }
   },
   "variables": {
-    "sqlServerDeploymentName": "[concat('template', parameters('prefix'), '-sql')]"
+    "loadBalancerName": "[concat(parameters('prefix'), '-lb')]",
+    "sqlServerDeploymentName": "[concat('template', parameters('prefix'), '-sql')]",
+    "commonLoadBalancerBackendAddressPoolName": "bepool"
   },
   "resources": [
+    {
+      "apiVersion": "2017-10-01",
+      "name": "[variables('loadBalancerName')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "location": "[parameters('location')]",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "LoadBalancerFrontEnd",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/', parameters('existingVnetName')), '/subnets/', parameters('existingSubnetName'))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('commonLoadBalancerBackendAddressPoolName')]"
+          }
+        ]
+      }
+    },
     {
       "apiVersion": "2017-05-10",
       "name": "[variables('sqlServerDeploymentName')]",
@@ -65,7 +86,7 @@
             "value": "[parameters('prefix')]"
           },
           "databaseName": {
-            "value": "sample-db"
+            "value": "[concat(parameters('prefix'), '-sample-db')]"
           },
           "administratorLogin": {
             "value": "[parameters('adminUsername')]"
@@ -81,7 +102,8 @@
       "name": "[concat('template', parameters('prefix'), '-vmss')]",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/', variables('sqlServerDeploymentName'))]"
+        "[concat('Microsoft.Resources/deployments/', variables('sqlServerDeploymentName'))]",
+        "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -97,10 +119,10 @@
             "value": "[parameters('existingSubnetName')]"
           },
           "existingLoadBalancerName": {
-            "value": "[parameters('existingLoadBalancerName')]"
+            "value": "[variables('loadBalancerName')]"
           },
           "existingLoadBalancerBackendPoolName": {
-            "value": "[parameters('existingLoadBalancerBackendPoolName')]"
+            "value": "[variables('commonLoadBalancerBackendAddressPoolName')]"
           },
           "vmssName": {
             "value": "[concat(parameters('prefix'), '-vmss')]"
