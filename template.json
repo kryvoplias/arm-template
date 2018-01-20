@@ -223,7 +223,7 @@
     },
     {
       "apiVersion": "2017-05-10",
-      "name": "template-vmss",
+      "name": "web-vmss",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
