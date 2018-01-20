@@ -19,7 +19,7 @@
       "type": "string"
     },
     "administratorLoginPassword": {
-      "type": "string"
+      "type": "securestring"
     },
     "databaseName": {
       "type": "string"
@@ -59,17 +59,13 @@
     }
   },
   "variables": {
-    "sqlServerName": "[concat(parameters('prefix'), '-sqlserver-', uniqueString(resourceGroup().id))]",
-    "sqlServerDisplayName": "[concat(parameters('prefix'), '-sqlserver')]"
+    "sqlServerName": "[concat(parameters('prefix'), '-sqlserver-', uniqueString(resourceGroup().id))]"
   },
   "resources": [
     {
       "name": "[variables('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
       "location": "[parameters('location')]",
-      "tags": {
-        "displayName": "[variables('sqlServerDisplayName')]"
-      },
       "apiVersion": "2014-04-01",
       "properties": {
         "administratorLogin": "[parameters('administratorLogin')]",
@@ -80,9 +76,6 @@
           "name": "[parameters('databaseName')]",
           "type": "databases",
           "location": "[parameters('location')]",
-          "tags": {
-            "displayName": "Database"
-          },
           "apiVersion": "2014-04-01",
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers/', variables('sqlServerName'))]"
