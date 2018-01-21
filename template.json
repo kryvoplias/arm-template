@@ -95,13 +95,13 @@
           {
             "properties": {
               "frontendIPConfiguration": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('webLoadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('webLoadBalancerName')), '/frontendIpConfigurations/LoadBalancerFrontEnd')]"
               },
               "backendAddressPool": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('webLoadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('webLoadBalancerName')), '/backendAddressPools/', variables('commonLoadBalancerBackendAddressPoolName'))]"
               },
               "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('webLoadBalancerName')), '/probes/lbprobe')]"
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('webLoadBalancerName')), '/probes/', variables('webLoadBalancerName'), '-probe')]"
               },
               "protocol": "Tcp",
               "frontendPort": 80,
