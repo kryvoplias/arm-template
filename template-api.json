@@ -173,7 +173,7 @@
   "outputs": {
     "loadBalancerIpAddress": {
       "type": "string",
-      "value": "10.0.2.4"
+      "value": "[reference('LoadBalancerFrontEnd').privateIPAddress]"
     }
   }
 }
