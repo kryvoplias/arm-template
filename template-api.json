@@ -38,6 +38,13 @@
       "metadata": {
         "description": "Admin password on all VMs."
       }
+    },
+    "currentDateTimeInTicks": {
+      "type": "int",
+      "defaultValue": "123456",
+      "metadata": {
+        "description": "Will be used to generate random tag value"
+      }
     }
   },
   "variables": {
@@ -165,6 +172,9 @@
           },
           "existingDatabaseConnectionString": {
             "value": "[reference(variables('sqlServerDeploymentName')).outputs.DbAdoConnString.value]"
+          },
+          "currentDateTimeInTicks": {
+            "value": "[parameters('currentDateTimeInTicks')]"
           }
         }
       }

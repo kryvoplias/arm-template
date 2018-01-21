@@ -86,9 +86,12 @@
         "description": "Admin password on all VMs."
       }
     },
-    "extensionForceUpdateTag" :{
-      "type": "string",
-      "defaultValue": "[uniqueString(resourceGroup().id, deployment().name)]"
+    "currentDateTimeInTicks": {
+      "type": "int",
+      "defaultValue": "123456",
+      "metadata": {
+        "description": "Will be used to generate random tag value"
+      }
     }
   },
   "variables": {
@@ -100,7 +103,8 @@
       "offer": "WindowsServer",
       "sku": "[parameters('windowsOsVersion')]",
       "version": "latest"
-    }
+    },
+    "extensionForceUpdateTag": "[uniqueString(resourceGroup().id, parameters('currentDateTimeInTicks'))]"
   },
   "resources": [
     {
@@ -164,7 +168,7 @@
                   "publisher": "Microsoft.Compute",
                   "type": "CustomScriptExtension",
                   "typeHandlerVersion": "1.4",
-                  "forceUpdateTag": "[parameters('extensionForceUpdateTag')]",
+                  "forceUpdateTag": "[variables('extensionForceUpdateTag')]",
                   "autoUpgradeMinorVersion": true,
                   "settings": {
                     "fileUris": [

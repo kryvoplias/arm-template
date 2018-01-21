@@ -22,6 +22,13 @@
       "metadata": {
         "description": "Admin password on all VMs."
       }
+    },
+    "currentDateTimeInTicks": {
+      "type": "int",
+      "defaultValue": "123456",
+      "metadata": {
+        "description": "Will be used to generate random tag value"
+      }
     }
   },
   "variables": {
@@ -239,6 +246,9 @@
           },
           "existingApi2LoadBalancerIpAddress": {
             "value": "[reference('template-api2').outputs.loadBalancerIpAddress.value]"
+          },
+          "currentDateTimeInTicks": {
+            "value": "[parameters('currentDateTimeInTicks')]"
           }
         }
       }
@@ -271,6 +281,9 @@
           },
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
+          },
+          "currentDateTimeInTicks": {
+            "value": "[parameters('currentDateTimeInTicks')]"
           }
         }
       },
