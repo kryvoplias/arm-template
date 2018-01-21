@@ -35,15 +35,15 @@
     },
     "existingDatabaseConnectionString": {
       "type": "string",
-      "defaultValue": ""
+      "defaultValue": "N/A"
     },
     "existingApi1LoadBalancerIpAddress": {
       "type": "string",
-      "defaultValue": ""
+      "defaultValue": "N/A"
     },
     "existingApi2LoadBalancerIpAddress": {
       "type": "string",
-      "defaultValue": ""
+      "defaultValue": "N/A"
     },
     "vmssName": {
       "type": "string",
@@ -85,6 +85,10 @@
       "metadata": {
         "description": "Admin password on all VMs."
       }
+    },
+    "extensionForceUpdateTag" :{
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id)]"
     }
   },
   "variables": {
@@ -160,6 +164,7 @@
                   "publisher": "Microsoft.Compute",
                   "type": "CustomScriptExtension",
                   "typeHandlerVersion": "1.4",
+                  "forceUpdateTag": "[parameters('extensionForceUpdateTag')]",
                   "autoUpgradeMinorVersion": true,
                   "settings": {
                     "fileUris": [
