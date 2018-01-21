@@ -173,24 +173,17 @@
           "extensionProfile": {
             "extensions": [
               {
-                "name": "Microsoft.Powershell.DSC",
+                "name": "CustomScriptExtension-install-iis",
                 "properties": {
-                  "publisher": "Microsoft.Powershell",
-                  "type": "DSC",
-                  "typeHandlerVersion": "2.9",
-                  "autoUpgradeMinorVersion": true,
-                  "forceUpdateTag": "[parameters('powershelldscUpdateTagVersion')]",
+                  "publisher": "Microsoft.Compute",
+                  "type": "CustomScriptExtension",
+                  "typeHandlerVersion": "1.7",
+                  "autoUpgradeMinorVersion": false,
                   "settings": {
-                    "configuration": {
-                      "url": "[variables('powershelldscZipFullPath')]",
-                      "script": "IISInstall.ps1",
-                      "function": "InstallIIS"
-                    },
-                    "configurationArguments": {
-                      "nodeName": "localhost",
-                      "WebDeployPackagePath": "[variables('webDeployPackageFullPath')]"
-                    }
-                  }
+                    "fileUris": [ "https://raw.githubusercontent.com/iainfoulds/azure-samples/master/automate-iis.ps1" ],
+                    "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File automate-iis.ps1"
+                  },
+                  "forceUpdateTag": "RerunExtension"
                 }
               }
             ]
