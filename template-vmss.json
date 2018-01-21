@@ -87,7 +87,7 @@
       }
     },
     "currentDateTimeInTicks": {
-      "type": "int",
+      "type": "string",
       "defaultValue": "123456",
       "metadata": {
         "description": "Will be used to generate random tag value"
