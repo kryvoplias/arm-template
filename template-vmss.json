@@ -41,7 +41,7 @@
       "type": "string",
       "defaultValue": ""
     },
-    "existingApi1LoadBalancerIpAddress": {
+    "existingApi2LoadBalancerIpAddress": {
       "type": "string",
       "defaultValue": ""
     },
