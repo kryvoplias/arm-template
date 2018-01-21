@@ -42,7 +42,7 @@
   },
   "variables": {
     "loadBalancerName": "[concat(parameters('prefix'), '-lb')]",
-    "sqlServerDeploymentName": "[concat('template', parameters('prefix'), '-sql')]",
+    "sqlServerDeploymentName": "[concat('template-', parameters('prefix'), '-sql')]",
     "commonLoadBalancerBackendAddressPoolName": "bepool"
   },
   "resources": [

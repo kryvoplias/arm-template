@@ -163,11 +163,11 @@
                   "autoUpgradeMinorVersion": true,
                   "settings": {
                     "fileUris": [
-                      "https://raw.githubusercontent.com/Microsoft/dotnet-core-sample-templates/master/dotnet-core-music-windows/scripts/configure-music-app.ps1"
+                      "https://raw.githubusercontent.com/kryvoplias/arm-template/master/scripts/configure-test-app.ps1"
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File configure-music-app.ps1 -user ', parameters('adminUsername'),' -password ', parameters('adminPassword'),' -sqlserver ', 'api1-sqlserver-l6666nkfsdmka.database.windows.net')]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File configure-test-app.ps1 -api1ipaddress ', parameters('existingApi1LoadBalancerIpAddress'),' -api2ipaddress ', parameters('existingApi2LoadBalancerIpAddress'),' -connectionstring ', parameters('existingDatabaseConnectionString'))]"
                   }
                 }
               }

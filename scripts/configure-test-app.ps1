@@ -1,12 +1,12 @@
 <#
     .SYNOPSIS
-        Downloads and configures .Net Core Music Store application sample across IIS and Azure SQL DB.
+        Downloads and configures .Net Core web api Store application sample across IIS and Azure SQL DB.
 #>
 
 Param (
-    [string]$user,
-    [SecureString]$password,
-    [string]$sqlserver
+    [string]$api1ipaddress,
+    [string]$api2ipaddress,
+    [string]$connectionstring
 )
 
 # Firewall
@@ -14,7 +14,7 @@ netsh advfirewall firewall add rule name="http" dir=in action=allow protocol=TCP
 
 # Folders
 New-Item -ItemType Directory c:\temp
-New-Item -ItemType Directory c:\music
+New-Item -ItemType Directory c:\webapi
 
 # Install iis
 Install-WindowsFeature web-server -IncludeManagementTools
@@ -27,19 +27,23 @@ Start-Process c:\temp\DotNetCore.1.0.0-SDK.Preview2-x64.exe -ArgumentList '/quie
 Invoke-WebRequest https://go.microsoft.com/fwlink/?LinkId=817246 -outfile c:\temp\DotNetCore.WindowsHosting.exe
 Start-Process c:\temp\DotNetCore.WindowsHosting.exe -ArgumentList '/quiet' -Wait
 
-# Download music app
-Invoke-WebRequest https://github.com/kryvoplias/arm-template/raw/master/test-app/music-store-azure-demo-pub.zip -OutFile c:\temp\musicstore.zip
-Expand-Archive C:\temp\musicstore.zip c:\music
+# Download webapi app
+Invoke-WebRequest https://github.com/kryvoplias/arm-template/raw/master/test-app/WebApiTestApp.zip -OutFile c:\temp\WebApiTestApp.zip
+Expand-Archive C:\temp\WebApiTestApp.zip c:\webapi
 
 # Azure SQL connection sting in environment variable
-[Environment]::SetEnvironmentVariable("Data:DefaultConnection:ConnectionString", "Server=$sqlserver;Database=MusicStore;Integrated Security=False;User Id=$user;Password=$password;MultipleActiveResultSets=True;Connect Timeout=30",[EnvironmentVariableTarget]::Machine)
+[Environment]::SetEnvironmentVariable("Data:ConnectionString", "$connectionstring",[EnvironmentVariableTarget]::Machine)
+[Environment]::SetEnvironmentVariable("Data:Api1IpAddress", "$api1ipaddress",[EnvironmentVariableTarget]::Machine)
+[Environment]::SetEnvironmentVariable("Data:Api2IpAddress", "$api2ipaddress",[EnvironmentVariableTarget]::Machine)
 
 # Pre-create database
-$env:Data:DefaultConnection:ConnectionString = "Server=$sqlserver;Database=MusicStore;Integrated Security=False;User Id=$user;Password=$password;MultipleActiveResultSets=True;Connect Timeout=30"
-Start-Process 'C:\Program Files\dotnet\dotnet.exe' -ArgumentList 'c:\music\MusicStore.dll'
+$env:Data:ConnectionString = "$connectionstring"
+$env:Data:Api1IpAddress = "$api1ipaddress"
+$env:Data:Api2IpAddress = "$api2ipaddress"
+Start-Process 'C:\Program Files\dotnet\dotnet.exe' -ArgumentList 'c:\webapi\WebApiTestApp.dll'
 
 # Configure iis
 Remove-WebSite -Name "Default Web Site"
 Set-ItemProperty IIS:\AppPools\DefaultAppPool\ managedRuntimeVersion ""
-New-Website -Name "MusicStore" -Port 80 -PhysicalPath C:\music\ -ApplicationPool DefaultAppPool
+New-Website -Name "WebApiTestApp" -Port 80 -PhysicalPath C:\webapi\ -ApplicationPool DefaultAppPool
 & iisreset
