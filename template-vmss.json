@@ -33,6 +33,18 @@
         "description": "Name of the existing backend pool in load balancer."
       }
     },
+    "existingDatabaseConnectionString": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "existingApi1LoadBalancerIpAddress": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "existingApi1LoadBalancerIpAddress": {
+      "type": "string",
+      "defaultValue": ""
+    },
     "vmssName": {
       "type": "string",
       "metadata": {

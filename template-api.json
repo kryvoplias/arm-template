@@ -162,9 +162,18 @@
           },
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
+          },
+          "existingDatabaseConnectionString": {
+            "value": "[reference(variables('sqlServerDeploymentName')).outputs.DbAdoConnString.value]"
           }
         }
       }
     }
-  ]
+  ],
+  "outputs": {
+    "loadBalancerIpAddress": {
+      "type": "string",
+      "value": "10.0.2.4"
+    }
+  }
 }

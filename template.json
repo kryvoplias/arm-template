@@ -233,6 +233,12 @@
           },
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
+          },
+          "existingApi1LoadBalancerIpAddress": {
+            "value": "[reference('template-api1').outputs.loadBalancerIpAddress.value]"
+          },
+          "existingApi2LoadBalancerIpAddress": {
+            "value": "[reference('template-api2').outputs.loadBalancerIpAddress.value]"
           }
         }
       }
