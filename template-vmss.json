@@ -88,7 +88,7 @@
     },
     "extensionForceUpdateTag" :{
       "type": "string",
-      "defaultValue": "[uniqueString(resourceGroup().id)]"
+      "defaultValue": "[uniqueString(resourceGroup().id, deployment().name)]"
     }
   },
   "variables": {
