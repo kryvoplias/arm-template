@@ -73,6 +73,34 @@
       "metadata": {
         "description": "Admin password on all VMs."
       }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The base URI where artifacts required by this template are located. For example, if stored on a public GitHub repo, you'd use the following URI: https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-vmss-windows-webapp-dsc-autoscale."
+      },
+      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-vmss-windows-webapp-dsc-autoscale"
+    },
+    "powershelldscZip": {
+      "type": "string",
+      "defaultValue": "/DSC/IISInstall.ps1.zip",
+      "metadata": {
+        "description": "Location of the PowerShell DSC zip file relative to the URI specified in the _artifactsLocation, i.e. /DSC/IISInstall.ps1.zip"
+      }
+    },
+    "webDeployPackage": {
+      "type": "string",
+      "defaultValue": "/WebDeploy/DefaultASPWebApp.v1.0.zip",
+      "metadata": {
+        "description": "Location of the  of the WebDeploy package zip file relative to the URI specified in _artifactsLocation, i.e. /WebDeploy/DefaultASPWebApp.v1.0.zip"
+      }
+    },
+    "powershelldscUpdateTagVersion": {
+      "type": "string",
+      "defaultValue": "1.0",
+      "metadata": {
+        "description": "Version number of the DSC deployment. Changing this value on subsequent deployments will trigger the extension to run."
+      }
     }
   },
   "variables": {
@@ -84,7 +112,9 @@
       "offer": "WindowsServer",
       "sku": "[parameters('windowsOsVersion')]",
       "version": "latest"
-    }
+    },
+    "webDeployPackageFullPath": "[concat(parameters('_artifactsLocation'), parameters('webDeployPackage'))]",
+    "powershelldscZipFullPath": "[concat(parameters('_artifactsLocation'), parameters('powershelldscZip'))]"
   },
   "resources": [
     {
@@ -136,6 +166,31 @@
                       }
                     }
                   ]
+                }
+              }
+            ]
+          },
+          "extensionProfile": {
+            "extensions": [
+              {
+                "name": "Microsoft.Powershell.DSC",
+                "properties": {
+                  "publisher": "Microsoft.Powershell",
+                  "type": "DSC",
+                  "typeHandlerVersion": "2.9",
+                  "autoUpgradeMinorVersion": true,
+                  "forceUpdateTag": "[parameters('powershelldscUpdateTagVersion')]",
+                  "settings": {
+                    "configuration": {
+                      "url": "[variables('powershelldscZipFullPath')]",
+                      "script": "IISInstall.ps1",
+                      "function": "InstallIIS"
+                    },
+                    "configurationArguments": {
+                      "nodeName": "localhost",
+                      "WebDeployPackagePath": "[variables('webDeployPackageFullPath')]"
+                    }
+                  }
                 }
               }
             ]
