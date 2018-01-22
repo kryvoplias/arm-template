@@ -22,10 +22,10 @@ Install-WindowsFeature web-server -IncludeManagementTools
 # Install dot.net core sdk
 Invoke-WebRequest http://go.microsoft.com/fwlink/?LinkID=615460 -outfile c:\temp\vc_redistx64.exe
 Start-Process c:\temp\vc_redistx64.exe -ArgumentList '/quiet' -Wait
-Invoke-WebRequest https://go.microsoft.com/fwlink/?LinkID=809122 -outfile c:\temp\DotNetCore.1.0.0-SDK.Preview2-x64.exe
-Start-Process c:\temp\DotNetCore.1.0.0-SDK.Preview2-x64.exe -ArgumentList '/quiet' -Wait
-Invoke-WebRequest https://go.microsoft.com/fwlink/?LinkId=817246 -outfile c:\temp\DotNetCore.WindowsHosting.exe
-Start-Process c:\temp\DotNetCore.WindowsHosting.exe -ArgumentList '/quiet' -Wait
+Invoke-WebRequest https://download.microsoft.com/download/1/1/5/115B762D-2B41-4AF3-9A63-92D9680B9409/dotnet-sdk-2.1.4-win-x64.exe -outfile c:\temp\dotnet-sdk-2.1.4-win-x64.exe
+Start-Process c:\temp\dotnet-sdk-2.1.4-win-x64.exe -ArgumentList '/quiet' -Wait
+Invoke-WebRequest https://download.microsoft.com/download/1/1/0/11046135-4207-40D3-A795-13ECEA741B32/DotNetCore.2.0.5-WindowsHosting.exe -outfile c:\temp\DotNetCore.2.0.5-WindowsHosting.exe
+Start-Process c:\temp\DotNetCore.2.0.5-WindowsHosting.exe -ArgumentList '/quiet' -Wait
 
 # Download webapi app
 Invoke-WebRequest https://github.com/kryvoplias/arm-template/raw/master/test-app/WebApiTestApp.zip -OutFile c:\temp\WebApiTestApp.zip
