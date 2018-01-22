@@ -95,7 +95,7 @@
   "outputs": {
     "loadBalancerIpAddress": {
       "type": "string",
-      "value": "[reference(variables('loadBalancerName'))]"
+      "value": "[reference(variables('loadBalancerName')).ipAddress]"
     }
   }
 }
