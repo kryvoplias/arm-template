@@ -29,6 +29,13 @@
       "metadata": {
         "description": "Will be used to generate random tag value"
       }
+    },
+    "extensionForceUpdateTag": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id, parameters('currentDateTimeInTicks'))]",
+      "metadata": {
+        "description": "Will be used to generate random tag value"
+      }
     }
   },
   "variables": {
@@ -247,8 +254,8 @@
           "existingApi2LoadBalancerIpAddress": {
             "value": "[reference('template-api2').outputs.loadBalancerIpAddress.value]"
           },
-          "currentDateTimeInTicks": {
-            "value": "[parameters('currentDateTimeInTicks')]"
+          "extensionForceUpdateTag": {
+            "value": "[parameters('extensionForceUpdateTag')]"
           }
         }
       }
@@ -282,8 +289,8 @@
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
           },
-          "currentDateTimeInTicks": {
-            "value": "[parameters('currentDateTimeInTicks')]"
+          "extensionForceUpdateTag": {
+            "value": "[parameters('extensionForceUpdateTag')]"
           }
         }
       },

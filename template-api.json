@@ -39,9 +39,9 @@
         "description": "Admin password on all VMs."
       }
     },
-    "currentDateTimeInTicks": {
+    "extensionForceUpdateTag": {
       "type": "string",
-      "defaultValue": "123456",
+      "defaultValue": "123456789",
       "metadata": {
         "description": "Will be used to generate random tag value"
       }
@@ -173,8 +173,8 @@
           "existingDatabaseConnectionString": {
             "value": "[reference(variables('sqlServerDeploymentName')).outputs.DbAdoConnString.value]"
           },
-          "currentDateTimeInTicks": {
-            "value": "[parameters('currentDateTimeInTicks')]"
+          "extensionForceUpdateTag": {
+            "value": "[parameters('extensionForceUpdateTag')]"
           }
         }
       }
