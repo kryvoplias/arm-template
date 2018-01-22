@@ -94,8 +94,8 @@
   ],
   "outputs": {
     "loadBalancerIpAddress": {
-      "type": "string",
-      "value": "[reference(variables('loadBalancerName')).ipAddress]"
+      "type": "array",
+      "value": "[reference(resourceId('Microsoft.Network/loadBalancers', 'testlb'), '2016-09-01').frontendIPConfigurations]"
     }
   }
 }
