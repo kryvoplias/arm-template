@@ -95,7 +95,7 @@
   "outputs": {
     "loadBalancerIpAddress": {
       "type": "string",
-      "value": "[string(reference(variables('loadBalancerName')).frontendIPConfigurations)]"
+      "value": "[string(first(reference(variables('loadBalancerName')).frontendIPConfigurations).properties.privateIPAddress)]"
     }
   }
 }
