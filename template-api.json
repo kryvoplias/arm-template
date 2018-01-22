@@ -183,7 +183,7 @@
   "outputs": {
     "loadBalancerIpAddress": {
       "type": "string",
-      "value": "10.0.2.4"
+      "value": "[string(first(reference(variables('loadBalancerName')).frontendIPConfigurations).properties.privateIPAddress)]"
     }
   }
 }
