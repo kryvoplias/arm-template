@@ -92,6 +92,10 @@
       "metadata": {
         "description": "Will be used to generate random tag value"
       }
+    },
+    "extensionCommandToExecute": {
+      "type": "string",
+      "defaultValue": "[concat('powershell -ExecutionPolicy Unrestricted -File configure-test-app.ps1 -api1ipaddress ', parameters('existingApi1LoadBalancerIpAddress'),' -api2ipaddress ', parameters('existingApi2LoadBalancerIpAddress'),' -connectionstring ', '\"', parameters('existingDatabaseConnectionString'), '\"')]"
     }
   },
   "variables": {
@@ -175,7 +179,7 @@
                     ]
                   },
                   "protectedSettings": {
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File configure-test-app.ps1 -api1ipaddress ', parameters('existingApi1LoadBalancerIpAddress'),' -api2ipaddress ', parameters('existingApi2LoadBalancerIpAddress'),' -connectionstring ', parameters('existingDatabaseConnectionString'))]"
+                    "commandToExecute": "[parameters('extensionCommandToExecute')]"
                   }
                 }
               }
